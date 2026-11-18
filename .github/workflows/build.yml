@@ -1,0 +1,52 @@
+name: Build unsigned IPA
+
+# 只在这个文件被改、或手动触发时编译，避免浪费免费额度
+on:
+  push:
+    paths:
+      - 'src/**'
+      - '.github/workflows/build.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15          # 云端 macOS + Xcode，公开仓库免费不限量
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 安装 XcodeGen
+        run: brew install xcodegen
+
+      - name: 生成 Xcode 工程
+        working-directory: src
+        run: xcodegen generate
+
+      - name: 编译（不签名）
+        working-directory: src
+        run: |
+          xcodebuild \
+            -project IphoneApp.xcodeproj \
+            -scheme IphoneApp \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            build
+
+      - name: 打包成 unsigned IPA
+        working-directory: src
+        run: |
+          APP=$(find build/Build/Products/Release-iphoneos -maxdepth 1 -name '*.app' -type d | head -1)
+          echo "找到 App: $APP"
+          mkdir -p Payload
+          cp -R "$APP" Payload/
+          zip -qry IphoneApp.ipa Payload
+          ls -lh IphoneApp.ipa
+
+      - name: 上传 IPA（保留 7 天）
+        uses: actions/upload-artifact@v4
+        with:
+          name: IphoneApp-unsigned
+          path: src/IphoneApp.ipa
+          retention-days: 7
