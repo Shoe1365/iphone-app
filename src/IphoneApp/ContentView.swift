@@ -1,33 +1,23 @@
 //
 //  ContentView.swift
-//  第一版：验证整条「Windows 写代码 → 云端编译 → 装进 iPhone」流程能否跑通。
-//  界面只有一个标题和一个按钮，不做任何实际功能。
+//  根视图：未配置连接时显示设置/登录页，配置完成后显示主 Tab 导航。
+//
+//  所有连接信息都由用户在设置页填写，代码中不包含任何地址或凭据。
 //
 
 import SwiftUI
 
 struct ContentView: View {
-    @State private var count = 0
+    @EnvironmentObject private var store: PhotoStore
 
     var body: some View {
-        VStack(spacing: 24) {
-            Text("自用 App 跑起来了")
-                .font(.title)
-                .fontWeight(.bold)
-
-            Text("按钮点击次数：\(count)")
-                .font(.title2)
-                .foregroundColor(.secondary)
-
-            Button("点我 +1") {
-                count += 1
+        Group {
+            if store.isConfigured {
+                MainTabView()
+            } else {
+                SetupView()
             }
-            .buttonStyle(.borderedProminent)
         }
-        .padding()
+        .animation(.easeInOut, value: store.isConfigured)
     }
-}
-
-#Preview {
-    ContentView()
 }
