@@ -38,21 +38,8 @@ struct PhotoTile: View {
 
     @ViewBuilder
     private var content: some View {
-        if let urlString = photo.thumbnailURL, let url = URL(string: urlString) {
-            AsyncImage(url: url) { phase in
-                switch phase {
-                case .success(let image):
-                    image
-                        .resizable()
-                        .scaledToFill()
-                case .failure:
-                    placeholder
-                default:
-                    placeholder
-                        .overlay(ProgressView().tint(.white))
-                }
-            }
-        } else {
+        // 用 SecureImage 走自签证书信任会话；原生 AsyncImage 会让所有 NAS 图片加载失败。
+        SecureImage(urlString: photo.thumbnailURL) {
             placeholder
         }
     }

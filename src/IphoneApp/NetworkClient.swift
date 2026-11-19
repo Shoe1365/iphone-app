@@ -65,6 +65,9 @@ final class SelfSignedTLSDelegate: NSObject, URLSessionDelegate {
 // MARK: - 请求封装
 
 final class NetworkClient {
+    /// 全 App 共用一个会话（含自签证书信任代理），图片与 API 请求都走它。
+    static let shared = NetworkClient()
+
     private let session: URLSession
 
     init() {
@@ -94,6 +97,17 @@ final class NetworkClient {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue("FN Photo iPhone", forHTTPHeaderField: "User-Agent")
         return try await send(request)
+    }
+
+    /// 图片专用：复用同一个信任自签证书的会话。
+    /// SwiftUI 的 AsyncImage 无法自定义证书信任，家用 NAS 自签证书会全部加载失败。
+    func imageData(_ url: URL) async throws -> Data {
+        let (data, response) = try await session.data(for: URLRequest(url: url))
+        let statusCode = (response as? HTTPURLResponse)?.statusCode ?? -1
+        guard (200..<300).contains(statusCode) else {
+            throw NetworkError.http(statusCode)
+        }
+        return data
     }
 
     private func send(_ request: URLRequest) async throws -> [String: Any] {

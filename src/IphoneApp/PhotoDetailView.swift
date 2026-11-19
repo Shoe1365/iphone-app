@@ -133,18 +133,9 @@ private struct PhotoPage: View {
 
     var body: some View {
         Group {
-            if let urlString = photo.fullURL ?? photo.thumbnailURL,
-               let url = URL(string: urlString) {
-                AsyncImage(url: url) { phase in
-                    switch phase {
-                    case .success(let image):
-                        image
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    default:
-                        placeholder
-                    }
+            if let urlString = photo.fullURL ?? photo.thumbnailURL {
+                SecureImage(urlString: urlString, contentMode: .fit) {
+                    placeholder
                 }
             } else {
                 placeholder

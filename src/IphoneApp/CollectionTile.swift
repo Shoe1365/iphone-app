@@ -15,14 +15,9 @@ struct CollectionTile: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Group {
-                if let urlString = coverURL, let url = URL(string: urlString) {
-                    AsyncImage(url: url) { phase in
-                        switch phase {
-                        case .success(let image):
-                            image.resizable().scaledToFill()
-                        default:
-                            placeholder
-                        }
+                if let urlString = coverURL {
+                    SecureImage(urlString: urlString) {
+                        placeholder
                     }
                 } else {
                     placeholder

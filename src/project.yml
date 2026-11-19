@@ -18,12 +18,18 @@ targets:
   IphoneApp:
     type: application
     platform: iOS
+    infoPlist:
+      CFBundleDisplayName: 绿联相册
+      UILaunchScreen: {}
+      UIApplicationSceneManifest:
+        UIApplicationSupportsMultipleScenes: true
+        UISceneConfigurations: {}
+      # 人物/地点只读代理走 http://<host>:8601，需关闭 ATS 才不被系统拦截。
+      NSAppTransportSecurity:
+        NSAllowsArbitraryLoads: true
     sources:
       - path: IphoneApp
     settings:
       base:
-        INFOPLIST_KEY_UILaunchScreen_Generation: YES
-        INFOPLIST_KEY_UIApplicationSceneManifest_Generation: YES
-        INFOPLIST_KEY_CFBundleDisplayName: 自用App
-        GENERATE_INFOPLIST_FILE: YES
+        GENERATE_INFOPLIST_FILE: NO
         PRODUCT_NAME: IphoneApp

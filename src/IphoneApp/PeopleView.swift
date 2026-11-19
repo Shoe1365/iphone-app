@@ -20,16 +20,7 @@ struct PeopleView: View {
                         NavigationLink(value: person) {
                             VStack(spacing: 8) {
                                 ZStack {
-                                    if let urlString = person.avatarURL, let url = URL(string: urlString) {
-                                        AsyncImage(url: url) { phase in
-                                            switch phase {
-                                            case .success(let image):
-                                                image.resizable().scaledToFill()
-                                            default:
-                                                avatarPlaceholder(for: person)
-                                            }
-                                        }
-                                    } else {
+                                    SecureImage(urlString: person.avatarURL) {
                                         avatarPlaceholder(for: person)
                                     }
                                 }
